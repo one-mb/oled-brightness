@@ -27,10 +27,10 @@ xrandr --output eDP1 --brightness 0.3
 ```
 The useful brightness values range from 0.1 to 1.0. You'll propably not use 0.0, as that might turn the screen completely black.
 
-## attaching to the FN-Keys
+## attaching to the FN-Keys / usage
 
 The `oled-brightness` script replicates the original FN-Key behaviour. 
-It accepts a change value as parameter, e.g. `./OLED-display -0.1` to reduce brightness by 10% or `./OLED-display 0.3` to raise it by 30%.
+It accepts a change value as parameter, e.g. `./oled-brightness -0.1` to reduce brightness by 10% or `./oled-brightness 0.3` to raise it by 30%.
  
 Furthermore it persists the new brightness value in the user's home directory in `~/.brightness`
 
