@@ -1,15 +1,19 @@
 #!/usr/bin/php
 <?PHP
 /*
-# this script handles oled display brightness settings
-# Many laptops change brightness via "background light" changes with FN-key combinations. But oled-displays do not have a "background" led to change that way. That given, the brightness can also be changed via xrandr setting. 
-*/
+ * This script handles oled display brightness changes.
+ * 
+ * Many laptops change brightness via "background light" changes with FN-key 
+ * combinations. But oled-displays do not have a "background" led to change 
+ * that way. That given, the brightness can also be changed via xrandr 
+ * setting. 
+ */
 
 $lastValue=$newValue=1.0; // default value
 $userSettings['brightness'] = $newValue;
 $userSettingsFile="/home/".posix_getpwuid(posix_geteuid())['name']."/.brightness";
 
-## is there a user settings file, read it
+// is there a user settings file, read it
 if (is_readable($userSettingsFile)) {
 	$userSettings=parse_ini_file($userSettingsFile);
 	if(isset($userSettings["brightness"])) {
@@ -17,9 +21,9 @@ if (is_readable($userSettingsFile)) {
 	}
 }
 
-## evaluate change parameter
+// evaluate change parameter
 if(isset($argv[1]) && (floatval($argv[1]) < 0 || floatval($argv[1]) > 0 )) {
-	$change = $argv[1];
+	$change = floatval($argv[1]);
 	// verify max 1.0, min 0.1 (0.0 whould turn the oled all black)
 	if($lastValue+$change > 1) {
 		$newValue = 1;
@@ -34,9 +38,8 @@ if(isset($argv[1]) && (floatval($argv[1]) < 0 || floatval($argv[1]) > 0 )) {
 	echo "set brightness to last value ".$lastValue.PHP_EOL;
 }
 
-## find an xrandr
+// find an xrandr
 $sXrandr=$output=$return_value=null;
-//$sXrandr=system('which xrandr', $return_value);
 $sXrandr=exec('which xrandr', $output, $return_value);
 if ($return_value > 0) {
 	echo "failed getting xrandr executable (exit($return_value))".PHP_EOL;
@@ -44,8 +47,8 @@ if ($return_value > 0) {
 }
 $sXrandr = trim($sXrandr);
 
-## get display name
-//$sDisplayName=system($sXrandr.' --listmonitors | head -n2 | tail -n1 | awk \'{ print $4 }\'', $return_value);
+// get display name
+// sDisplayName=`xrandr --listmonitors | head -n2 | tail -n1 | awk '{ print $4 }'`
 $sDisplayName=$output=$return_value=null;
 exec($sXrandr.' --listmonitors', $output, $return_value);
 if ($return_value > 0) {
@@ -55,7 +58,7 @@ if ($return_value > 0) {
 	$sDisplayName=trim(array_reverse(explode(' ', $output[1]))[0]);
 }
 
-## set display brightness
+// set display brightness
 system($sXrandr.' --output '.$sDisplayName.' --brightness '.$newValue, $return_value);
 if ($return_value > 0) {
 	echo "failed setting internal display brightness ((exit($return_value))".PHP_EOL;
@@ -63,7 +66,7 @@ if ($return_value > 0) {
 }
 
 
-## persisting usersettings
+// persisting usersettings
 $newSettings = "";
 if(!file_exists($userSettingsFile)) {
 	touch($userSettingsFile);
@@ -90,3 +93,4 @@ if ((file_exists($userSettingsFile) && is_writeable($userSettingsFile)) ||
 else {
 	echo "file not writeable: could not persist new value in user settings ($userSettingsFile)".PHP_EOL;
 }
+
